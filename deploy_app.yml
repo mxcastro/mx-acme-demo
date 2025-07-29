@@ -17,9 +17,11 @@ runcmd:
   - GITHUB_REPO=${github_repo_url} # Terraform variable interpolated here
 
   # Create the web application directory
+  - echo "$WEBAPP_DIR"
   - mkdir -p "$WEBAPP_DIR"
 
   # Clone the GitHub repository
+  - echo "$GITHUB_REPO"
   - git clone "$GITHUB_REPO" "$WEBAPP_DIR" || { echo "Failed to clone repository. Exiting."; exit 1; }
 
   # Navigate into the web application directory and start the server
