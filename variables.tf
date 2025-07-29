@@ -16,7 +16,7 @@ variable "owner" {
 
 variable "environment" {
   type        = string
-  description = "Application environment for deployment."
+  description = "(Required) Application environment for deployment."
 }
 
 variable "region" {
