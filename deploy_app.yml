@@ -1,0 +1,31 @@
+#cloud-config
+# This is a cloud-init configuration file.
+# It will be executed on the EC2 instance during its first boot.
+
+# Update package lists
+apt_update: true
+
+# Install necessary packages
+packages:
+  - git
+  - python3
+
+# Run commands after packages are installed
+runcmd:
+  - echo "Starting cloud-init web app deployment..."
+  - WEBAPP_DIR="/var/www/acme-widgets"
+  - GITHUB_REPO=${github_repo_url} # Terraform variable interpolated here
+
+  # Create the web application directory
+  - mkdir -p "$WEBAPP_DIR"
+
+  # Clone the GitHub repository
+  - git clone "$GITHUB_REPO" "$WEBAPP_DIR" || { echo "Failed to clone repository. Exiting."; exit 1; }
+
+  # Navigate into the web application directory and start the server
+  - cd "$WEBAPP_DIR" || { echo "Failed to change directory to $WEBAPP_DIR. Exiting."; exit 1; }
+  - nohup python3 -m http.server 8000 > /dev/null 2>&1 &
+
+  - echo "Web application deployment script finished."
+  - echo "You should be able to access the web app at http://<YOUR_EC2_PUBLIC_IP>:8000"
+  - echo "Remember to open port 8000 in your EC2 instance's security group."
