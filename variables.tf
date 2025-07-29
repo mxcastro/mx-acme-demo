@@ -30,3 +30,14 @@ variable "instance_type" {
   description = "(Optional) Specifies the AWS instance type. Defaults to t2.micro."
   default     = "t2.micro"
 }
+
+variable "aws_access_key_id" {
+  description = "AWS Access Key ID"
+  type        = string
+}
+
+variable "aws_secret_access_key" {
+  description = "AWS Secret Access Key"
+  type        = string
+  sensitive   = true 
+}
