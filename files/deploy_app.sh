@@ -51,7 +51,9 @@ sudo bash -c "cat > \${NGINX_CONF_PATH}" <<EOF
 server {
     listen 80 default_server;
     listen [::]:80 default_server;
-
+    listen 8001; # Add 8001 port
+    listen [::]:8001; # Add IPv6 8001 port
+    
     root \${APP_DIR}; # Set the root directory to your cloned app
     index index.html index.htm;
 
