@@ -1,33 +1,26 @@
-variable "prefix" {
-  type        = string
-  description = "(Required) This prefix will be included in the name of most resources."
-}
+# variables.tf
 
-variable "project" {
+variable "aws_region" {
+  description = "The AWS region to deploy resources in."
   type        = string
-  description = "(Required) Application project name."
-}
-
-variable "owner" {
-  type        = string
-  description = "(Optional) Project Owner. Defaults to Terraform"
-  default     = "Terraform"
-}
-
-variable "environment" {
-  type        = string
-  description = "(Required) Application environment for deployment."
-}
-
-variable "region" {
-  type        = string
-  description = "(Optional) The region where the resources are created. Defaults to us-east-1."
-  default     = "us-east-1"
+  default     = "us-east-1" # You can change this to your desired region
 }
 
 variable "instance_type" {
+  description = "The EC2 instance type."
   type        = string
-  description = "(Optional) Specifies the AWS instance type. Defaults to t2.micro."
-  default     = "t2.micro"
+  default     = "t2.micro" # Free tier eligible instance type
 }
 
+variable "key_pair_name" {
+  description = "The name for the EC2 key pair."
+  type        = string
+  default     = "acme-webapp-key"
+}
+
+variable "github_repo_url" {
+  description = "The URL of the GitHub repository containing the web app (e.g., 'https://github.com/your-username/your-repo.git')."
+  type        = string
+  # IMPORTANT: Replace this with your actual GitHub repository URL where index.html is located.
+  default     = "https://github.com/your-username/acme-widgets.git"
+}
