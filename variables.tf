@@ -22,5 +22,5 @@ variable "github_repo_url" {
   description = "The URL of the GitHub repository containing the web app (e.g., 'https://github.com/your-username/your-repo.git')."
   type        = string
   # IMPORTANT: Replace this with your actual GitHub repository URL where index.html is located.
-  default     = "https://github.com/your-username/acme-widgets.git"
+  default     = "https://github.com/mxcastro/order-webapp.git"
 }
