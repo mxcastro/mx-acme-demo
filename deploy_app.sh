@@ -1,4 +1,4 @@
-!/bin/bash
+#!/bin/bash
 # This script is designed to be used as user_data for an AWS EC2 instance (Ubuntu/Debian based).
 
 # Update package lists
