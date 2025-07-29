@@ -10,19 +10,25 @@ echo "Installing Git..."
 sudo apt-get install -y git
 
 # Define the directory for the web application
+# This is a shell variable, not a Terraform template variable.
 WEBAPP_DIR="/var/www/acme-widgets"
-GITHUB_REPO="${github_repo_url}" # <<< This variable is passed from Terraform
+
+# GITHUB_REPO is a shell variable whose value is set by a Terraform template variable.
+# The `github_repo_url` part is the Terraform template variable, so it remains `${}`.
+GITHUB_REPO="${github_repo_url}"
 
 # Create the web application directory if it doesn't exist
-echo "Creating web application directory: ${WEBAPP_DIR}"
-sudo mkdir -p "${WEBAPP_DIR}"
+# Use $$ to escape shell variable references from Terraform's template engine
+echo "Creating web application directory: $${WEBAPP_DIR}"
+sudo mkdir -p "$${WEBAPP_DIR}"
 
 # Clone the GitHub repository
-echo "Cloning web application from ${GITHUB_REPO} into ${WEBAPP_DIR}..."
-sudo git clone "${GITHUB_REPO}" "${WEBAPP_DIR}" || { echo "Failed to clone repository. Exiting."; exit 1; }
+# GITHUB_REPO is now a shell variable, so escape it too when used.
+echo "Cloning web application from $${GITHUB_REPO} into $${WEBAPP_DIR}..."
+sudo git clone "$${GITHUB_REPO}" "$${WEBAPP_DIR}" || { echo "Failed to clone repository. Exiting."; exit 1; }
 
 # Navigate into the web application directory
-cd "${WEBAPP_DIR}" || { echo "Failed to change directory to ${WEBAPP_DIR}. Exiting."; exit 1; }
+cd "$${WEBAPP_DIR}" || { echo "Failed to change directory to $${WEBAPP_DIR}. Exiting."; exit 1; }
 
 # Start Python's simple HTTP server on port 8000 in the background
 # nohup ensures the process continues even if the SSH session disconnects
