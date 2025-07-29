@@ -15,7 +15,8 @@ WEBAPP_DIR="/var/www/acme-widgets"
 
 # GITHUB_REPO is a shell variable whose value is set by a Terraform template variable.
 # The `github_repo_url` part is the Terraform template variable, so it remains `${}`.
-GITHUB_REPO="${github_repo_url}"
+# Removed quotes around the template variable to avoid parsing issues.
+GITHUB_REPO=${github_repo_url}
 
 # Create the web application directory if it doesn't exist
 # Use $$ to escape shell variable references from Terraform's template engine
@@ -24,6 +25,7 @@ sudo mkdir -p "$${WEBAPP_DIR}"
 
 # Clone the GitHub repository
 # GITHUB_REPO is now a shell variable, so escape it too when used.
+# Ensure shell variables are quoted when used in commands.
 echo "Cloning web application from $${GITHUB_REPO} into $${WEBAPP_DIR}..."
 sudo git clone "$${GITHUB_REPO}" "$${WEBAPP_DIR}" || { echo "Failed to clone repository. Exiting."; exit 1; }
 
