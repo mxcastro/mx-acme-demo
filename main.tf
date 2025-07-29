@@ -102,11 +102,11 @@ resource "aws_instance" "webapp_instance" {
 
   # User data script to configure the instance on launch
   # Reads the script content from a file in the 'files' directory
-  user_data = templatefile("${path.module}/files/deploy_app.sh", {
-    github_repo_url = var.github_repo_url
+  user_data = templatefile("${path.module}/deploy_app.sh", {
+    github_repo_url = var.github_repo_url # Only pass the variable that the script expects
   })
 
   tags = {
-    Name = "order-app"
+    Name = "acme-webapp-instance"
   }
 }
