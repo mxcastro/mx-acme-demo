@@ -22,15 +22,15 @@ sudo apt-get install -y nginx git
 echo "Nginx and Git installed."
 
 # --- 3. Clone the GitHub Repository ---
-echo "Cloning the GitHub repository: ${GITHUB_REPO_URL}..."
+echo "Cloning the GitHub repository: \${GITHUB_REPO_URL}..."
 # Create the directory if it doesn't exist
-sudo mkdir -p ${APP_DIR}
+sudo mkdir -p \${APP_DIR}
 # Clone the repository into the designated application directory
 # Using --depth 1 for a shallow clone to save time and space
-sudo git clone --depth 1 ${GITHUB_REPO_URL} ${APP_DIR}
+sudo git clone --depth 1 \${GITHUB_REPO_URL} \${APP_DIR}
 # Check if cloning was successful
 if [ $? -eq 0 ]; then
-    echo "Repository cloned successfully to ${APP_DIR}."
+    echo "Repository cloned successfully to \${APP_DIR}."
 else
     echo "Error: Failed to clone repository. Please check GITHUB_REPO_URL and permissions."
     exit 1
@@ -40,19 +40,19 @@ fi
 echo "Configuring Nginx..."
 
 # Remove the default Nginx configuration symlink to prevent conflicts
-if [ -L "${NGINX_SYMLINK_PATH}" ]; then
+if [ -L "\${NGINX_SYMLINK_PATH}" ]; then
     echo "Removing existing Nginx default site symlink..."
-    sudo rm ${NGINX_SYMLINK_PATH}
+    sudo rm \${NGINX_SYMLINK_PATH}
 fi
 
 # Create a new Nginx configuration file
 # This configuration will serve the index.html from the cloned repository
-sudo bash -c "cat > ${NGINX_CONF_PATH}" <<EOF
+sudo bash -c "cat > \${NGINX_CONF_PATH}" <<EOF
 server {
     listen 80 default_server;
     listen [::]:80 default_server;
 
-    root ${APP_DIR}; # Set the root directory to your cloned app
+    root \${APP_DIR}; # Set the root directory to your cloned app
     index index.html index.htm;
 
     server_name _; # Listen for any hostname
@@ -71,7 +71,7 @@ EOF
 
 # Create a symlink from sites-available to sites-enabled to activate the new config
 echo "Creating Nginx configuration symlink..."
-sudo ln -s ${NGINX_CONF_PATH} ${NGINX_SYMLINK_PATH}
+sudo ln -s \${NGINX_CONF_PATH} \${NGINX_SYMLINK_PATH}
 
 # --- 5. Start and Enable Nginx Service ---
 echo "Starting and enabling Nginx service..."
