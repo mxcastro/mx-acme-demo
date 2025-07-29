@@ -105,7 +105,7 @@ resource "aws_instance" "webapp_instance" {
   # user_data = templatefile("${path.module}/deploy_app.sh", {
   #   github_repo_url = var.github_repo_url # Only pass the variable that the script expects
   # })
-  user_data = file("${path.module}/deploy_app.sh")
+  user_data = base64encode(file("${path.module}/deploy_app.sh"))
 
   tags = {
     Name = "acme-webapp-instance"
