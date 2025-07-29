@@ -113,7 +113,7 @@ resource "aws_instance" "order_web" {
   subnet_id                   = element(module.vpc.public_subnets, 0)
   vpc_security_group_ids      = [aws_security_group.order_web.id]
 
-  user_data = templatefile("${path.module}/files/deploy_app.sh", {})
+  user_data = file("${path.module}/files/deploy_app.sh", {})
 
   tags = {
     Name = "${var.prefix}-${var.project}-${var.environment}-instance"
