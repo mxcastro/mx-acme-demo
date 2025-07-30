@@ -1,40 +1,27 @@
-# variables.tf
-
-variable "aws_region" {
-  description = "The AWS region to deploy resources in."
-  type        = string
-  default     = "us-east-1" # You can change this to your desired region
-}
-
-variable "instance_type" {
-  description = "The EC2 instance type."
-  type        = string
-  default     = "t2.nano" # Free tier eligible instance type
-}
-
-variable "key_pair_name" {
-  description = "The name for the EC2 key pair."
-  type        = string
-  default     = "acme-webapp-key"
-}
-
-variable "prefix" {
-  type        = string
-  description = "(Required) This prefix will be included in the name of most resources."
-}
-
+# Project name to be used in bucket naming and tags
 variable "project" {
+  description = "The name of the project. Used for bucket naming and tagging."
   type        = string
-  description = "(Required) Application project name."
+  default     = "acme-demo" # Example default
 }
 
-variable "owner" {
-  type        = string
-  description = "(Optional) Project Owner. Defaults to Terraform"
-  default     = "Terraform"
-}
-
+# Environment (e.g., dev, staging, prod)
 variable "environment" {
+  description = "The deployment environment (e.g., dev, staging, prod)."
   type        = string
-  description = "(Required) Application environment for deployment."
+  default     = "dev" # Example default
+}
+
+# Required prefix for the bucket name to ensure uniqueness
+variable "prefix" {
+  description = "A required suffix to append to the bucket name for uniqueness."
+  type        = string
+  default     = "data" # Example default
+}
+
+# Tags to apply to the S3 bucket
+variable "tags" {
+  description = "A map of tags to assign to the bucket."
+  type        = map(string)
+  default     = {}
 }
