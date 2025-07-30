@@ -1,32 +1,21 @@
-variable "prefix" {
-  type        = string
-  description = "(Required) This prefix will be included in the name of most resources."
-}
-
+# Project name to be used in bucket naming and tags
 variable "project" {
+  description = "The name of the project. Used for bucket naming and tagging."
   type        = string
-  description = "(Required) Application project name."
+  default     = "acme-demo" # Example default
 }
 
-variable "owner" {
-  type        = string
-  description = "(Optional) Project Owner. Defaults to Terraform"
-  default     = "Terraform"
-}
-
+# Environment (e.g., dev, staging, prod)
 variable "environment" {
+  description = "The deployment environment (e.g., dev, staging, prod)."
   type        = string
-  description = "Application environment for deployment."
+  default     = "dev" # Example default
 }
 
-variable "region" {
+# Required prefix for the bucket name to ensure uniqueness
+variable "prefix" {
+  description = "A required suffix to append to the bucket name for uniqueness."
   type        = string
-  description = "(Optional) The region where the resources are created. Defaults to us-east-1."
-  default     = "us-east-1"
+  default     = "data" # Example default
 }
 
-variable "instance_type" {
-  type        = string
-  description = "(Optional) Specifies the AWS instance type. Defaults to t2.micro."
-  default     = "t2.micro"
-}
