@@ -19,9 +19,3 @@ variable "prefix" {
   default     = "data" # Example default
 }
 
-# Tags to apply to all resources
-variable "tags" {
-  description = "A map of tags to apply to this resource."
-  type        = map(string)
-  default = {}
-}
