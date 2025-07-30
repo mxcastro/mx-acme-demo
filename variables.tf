@@ -15,7 +15,7 @@ variable "instance_type" {
 variable "key_pair_name" {
   description = "The name for the EC2 key pair."
   type        = string
-  default     = "${var.prefix}-${var.project}-${var.environment}-key"
+  default     = "acme-webapp-key"
 }
 
 variable "prefix" {
