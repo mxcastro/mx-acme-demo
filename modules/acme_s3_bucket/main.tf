@@ -4,7 +4,17 @@ resource "aws_s3_bucket" "this" {
   tags   = var.common_tags
 }
 
+resource "aws_s3_bucket_ownership_controls" "this" {
+  bucket = aws_s3_bucket.this.id
+
+  # Manage S3 Object Ownership
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
 resource "aws_s3_bucket_acl" "this" {
+  depends_on = [aws_s3_bucket_ownership_controls.this]
 
   # Block all public access for security
   bucket = aws_s3_bucket.this.id
