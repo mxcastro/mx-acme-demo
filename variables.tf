@@ -9,11 +9,32 @@ variable "aws_region" {
 variable "instance_type" {
   description = "The EC2 instance type."
   type        = string
-  default     = "t2.micro" # Free tier eligible instance type
+  default     = "t2.nano" # Free tier eligible instance type
 }
 
 variable "key_pair_name" {
   description = "The name for the EC2 key pair."
   type        = string
-  default     = "acme-webapp-key"
+  default     = "${var.prefix}-${var.project}-${var.environment}-key"
+}
+
+variable "prefix" {
+  type        = string
+  description = "(Required) This prefix will be included in the name of most resources."
+}
+
+variable "project" {
+  type        = string
+  description = "(Required) Application project name."
+}
+
+variable "owner" {
+  type        = string
+  description = "(Optional) Project Owner. Defaults to Terraform"
+  default     = "Terraform"
+}
+
+variable "environment" {
+  type        = string
+  description = "(Required) Application environment for deployment."
 }

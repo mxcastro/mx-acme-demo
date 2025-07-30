@@ -20,7 +20,7 @@ resource "aws_key_pair" "generated_key" {
 
   # Optional: Add tags to the key pair
   tags = {
-    Name = "${var.key_pair_name}-key"
+    Name = "${var.prefix}-${var.project}-${var.environment}-${var.key_pair_name}-key"
   }
 }
 
@@ -30,7 +30,7 @@ resource "aws_key_pair" "generated_key" {
 # This local_file resource is mainly for demonstration purposes if running locally.
 resource "local_file" "ssh_private_key" {
   content  = tls_private_key.ec2_key.private_key_pem
-  filename = "${aws_key_pair.generated_key.key_name}.pem"
+  filename = "${var.prefix}-${var.project}-${var.environment}-${aws_key_pair.generated_key.key_name}.pem"
   file_permission = "0400" # Set read-only permissions for the private key
 }
 
@@ -70,7 +70,7 @@ resource "aws_security_group" "webapp_sg" {
   }
 
   tags = {
-    Name = "acme-webapp-sg"
+    Name = "${var.prefix}-${var.project}-${var.environment}-sg"
   }
 }
 
@@ -100,14 +100,7 @@ resource "aws_instance" "webapp_instance" {
   key_name      = aws_key_pair.generated_key.key_name
   vpc_security_group_ids = [aws_security_group.webapp_sg.id]
 
-  # User data script to configure the instance on launch
-  # Reads the script content from a file in the 'files' directory
-  # user_data = templatefile("${path.module}/deploy_app.sh", {
-  #   github_repo_url = var.github_repo_url # Only pass the variable that the script expects
-  # })
-  user_data = file("${path.module}/deploy_app.yml")
-
   tags = {
-    Name = "acme-webapp-instance"
+    Name = "${var.prefix}-${var.project}-${var.environment}-instance"
   }
 }
