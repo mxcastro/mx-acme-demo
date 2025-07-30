@@ -12,5 +12,6 @@ module "acme_s3_bucket" {
   common_tags = {
     Environment = var.environment
     Project     = var.project
+    Purpose     = "Documents"
   }
 }
