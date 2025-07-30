@@ -8,7 +8,7 @@ variable "bucket_name" {
 variable "common_tags" {
   description = "A map of common tags to apply to all resources."
   type        = map(string)
-  default = {
+   default = {
     ManagedBy = "ACME"
     Owner     = "HCP Terraform Expert Team"
   }

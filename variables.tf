@@ -18,10 +18,3 @@ variable "prefix" {
   type        = string
   default     = "data" # Example default
 }
-
-# Tags to apply to the S3 bucket
-variable "tags" {
-  description = "A map of tags to assign to the bucket."
-  type        = map(string)
-  default     = {}
-}
