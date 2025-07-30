@@ -20,20 +20,3 @@ output "ssh_private_key_file" {
   value       = local_file.ssh_private_key.filename
   sensitive   = true # Mark as sensitive to prevent showing content in logs
 }
-
-# Variables used in the deploy_app.sh script
-
-output "webapp_deployment_directory" {
-  description = "The directory on the EC2 instance where the web application is deployed."
-  value       = "/var/www/acme-widgets" # Hardcoded in the deploy_app.sh script
-}
-
-output "github_repository_url_used" {
-  description = "The GitHub repository URL from which the web application is cloned."
-  value       = var.github_repo_url
-}
-
-output "user_data_script_applied" {
-  description = "Indicates that the user data script has been applied to the EC2 instance. Check instance logs for execution details."
-  value       = true
-}

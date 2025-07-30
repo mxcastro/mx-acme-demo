@@ -13,19 +13,17 @@ packages:
 # Run commands after packages are installed
 runcmd:
   - echo "Starting cloud-init web app deployment..."
-  - WEBAPP_DIR="/var/www/acme-widgets"
-  - GITHUB_REPO=${github_repo_url} # Terraform variable interpolated here
+  # - WEBAPP_DIR="/var/www/acme-widgets"
+  # - GITHUB_REPO=${github_repo_url} # Terraform variable interpolated here
 
   # Create the web application directory
-  - echo "$WEBAPP_DIR"
-  - mkdir -p "$WEBAPP_DIR"
+  - mkdir -p /var/www/acme-widgets
 
   # Clone the GitHub repository
-  - echo "$GITHUB_REPO"
-  - git clone "$GITHUB_REPO" "$WEBAPP_DIR" || { echo "Failed to clone repository. Exiting."; exit 1; }
+  - git clone https://github.com/mxcastro/order-webapp.git /var/www/acme-widgets || { echo "Failed to clone repository. Exiting."; exit 1; }
 
   # Navigate into the web application directory and start the server
-  - cd "$WEBAPP_DIR" || { echo "Failed to change directory to $WEBAPP_DIR. Exiting."; exit 1; }
+  - cd /var/www/acme-widgets || { echo "Failed to change directory to /var/www/acme-widgets. Exiting."; exit 1; }
   - nohup python3 -m http.server 8000 > /dev/null 2>&1 &
 
   - echo "Web application deployment script finished."
