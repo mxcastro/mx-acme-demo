@@ -18,4 +18,3 @@ variable "prefix" {
   type        = string
   default     = "data" # Example default
 }
-

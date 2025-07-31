@@ -1,17 +1,22 @@
-# Configure the AWS Provider
 provider "aws" {
-  region = "us-east-1" # You can change this to your desired AWS region
+  region = "us-east-1"
 }
 
-# Call the S3 bucket module
-module "acme_s3_bucket" {
-  source = "./modules/acme_s3_bucket"
+module "networking" {
+  source            = "./modules/networking"
+  vpc_cidr          = "10.0.0.0/16"
+  subnet_cidr       = "10.0.1.0/24"
+  availability_zone = "us-east-1a"
+  name_prefix       = "${var.prefix}-${var.project}-${var.environment}"
+}
 
-  # Use variables defined in the root variables.tf for module inputs
-  bucket_name = "${var.prefix}-${var.project}-${var.environment}"
-  common_tags = {
-    Environment = var.environment
-    Project     = var.project
-    #Purpose     = "Documents"
-  }
+module "compute" {
+  source            = "./modules/compute"
+  ami_id            = "ami-0c94855ba95c71c99"
+  instance_type     = "t2.micro"
+  subnet_id         = module.networking.subnet_id
+  vpc_id            = module.networking.vpc_id
+  name_prefix       = "${var.prefix}-${var.project}-${var.environment}"
+  allowed_ports     = [22]
+  allowed_ssh_cidrs = ["0.0.0.0/0"]
 }
