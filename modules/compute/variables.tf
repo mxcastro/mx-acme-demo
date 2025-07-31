@@ -1,6 +1,6 @@
 variable "allowed_ports" {
-  type    = list(number)
-  default = [80, 443]
+  type    = list(string)
+  default = ["80", "443"]
 }
 
 variable "allowed_ssh_cidrs" {

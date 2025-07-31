@@ -26,8 +26,8 @@ resource "aws_vpc_security_group_ingress_rule" "instance" {
   for_each          = toset(var.allowed_ports)
   security_group_id = aws_security_group.instance.id
   cidr_ipv4         = var.allowed_ssh_cidrs
-  from_port         = each.value
-  to_port           = each.value
+  from_port         = tonumber(each.value)
+  to_port           = tonumber(each.value)
   ip_protocol       = "tcp"
 }
 

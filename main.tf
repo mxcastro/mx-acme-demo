@@ -17,6 +17,6 @@ module "compute" {
   subnet_id         = module.networking.subnet_id
   vpc_id            = module.networking.vpc_id
   name_prefix       = "${var.prefix}-${var.project}-${var.environment}"
-  allowed_ports     = [22, 443]
+  allowed_ports     = ["22", "443"]
   allowed_ssh_cidrs = "0.0.0.0/0"
 }
