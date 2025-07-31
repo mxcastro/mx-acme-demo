@@ -4,7 +4,7 @@ variable "allowed_ports" {
 }
 
 variable "allowed_ssh_cidrs" {
-  default = ["0.0.0.0/0"]
+  default = "0.0.0.0/0"
 }
 
 variable "name_prefix" {}
