@@ -12,8 +12,5 @@ variable "ami_id" {}
 variable "instance_type" {}
 variable "subnet_id" {}
 variable "vpc_id" {}
-variable "region_id" {
-  default = "us-east-1"
-}
 
 
