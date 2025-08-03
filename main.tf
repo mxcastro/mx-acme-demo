@@ -13,8 +13,8 @@ module "networking" {
 module "compute" {
   source            = "./modules/compute"
   ami_id            = "ami-0c94855ba95c71c99"
-  # instance_type     = "t2.micro"
-  instance_type     = "t2.nano" //unallowed instance type
+  instance_type     = "t2.micro"
+  # instance_type     = "t2.nano" //unallowed instance type
   # instance_type     = "t3.micro" //allowed instance type
   subnet_id         = module.networking.subnet_id
   vpc_id            = module.networking.vpc_id
