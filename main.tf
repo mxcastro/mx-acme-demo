@@ -15,9 +15,9 @@ module "acme-compute" {
   source        = "app.terraform.io/mx-acme-demo/acme-compute/aws"
   version       = "1.0.0"
   ami_id        = "ami-0c94855ba95c71c99"
-  instance_type = "t2.micro"
+  # instance_type = "t2.micro"
   # instance_type     = "t2.nano" //unallowed instance type
-  # instance_type     = "t3.micro" //allowed instance type
+  instance_type     = "t3.micro" //allowed instance type
   subnet_id         = module.acme-networking.subnet_id
   vpc_id            = module.acme-networking.vpc_id
   name_prefix       = "${var.prefix}-${var.project}-${var.environment}"
