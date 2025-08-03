@@ -13,8 +13,8 @@ module "networking" {
 module "compute" {
   source            = "./modules/compute"
   ami_id            = "ami-0c94855ba95c71c99"
-  instance_type     = "t2.micro"
-  # instance_type     = "t2.nano"
+  # instance_type     = "t2.micro"
+  instance_type     = "t2.nano"
   subnet_id         = module.networking.subnet_id
   vpc_id            = module.networking.vpc_id
   name_prefix       = "${var.prefix}-${var.project}-${var.environment}"
