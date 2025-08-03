@@ -19,20 +19,31 @@ if tfplan.resource_changes is not null and length(tfplan.resource_changes) > 0 {
   // The 'tfplan.resource_changes' collection contains all resource changes
   // (create, update, delete).
   for tfplan.resource_changes as rc, address {
-    // Check if the resource is an 'aws_instance' and if it's being created or updated.
-    if rc.type is "aws_instance" and (rc.change.actions contains "create" or rc.change.actions contains "update") {
-      // Get the 'instance_type' from the 'after' block of the change.
-      // The 'after' block represents the state of the resource after the plan is applied.
-      instance_type = rc.change.after.instance_type
+    // Ensure 'rc.change' exists before attempting to access its properties.
+    // This handles cases where 'rc.change' might be null (e.g., for no-op or read actions).
+    if rc.change is not null {
+      // Check if the resource is an 'aws_instance'.
+      // Also, ensure 'rc.change.actions' is a list and contains 'create' or 'update'.
+      if rc.type is "aws_instance" and
+         rc.change.actions is not null and
+         is_list(rc.change.actions) and // Added check: ensure it's a list
+         (rc.change.actions contains "create" or rc.change.actions contains "update") {
 
-      // Check if the instance_type is not the allowed type.
-      if instance_type is not allowed_instance_type {
-        // If it's not the allowed type, add the resource address and its instance type
-        // to the list of violating instances.
-        append(violating_instances, {
-          "address": address,
-          "instance_type": instance_type,
-        })
+        // Get the 'instance_type' from the 'after' block of the change.
+        // Ensure 'rc.change.after' exists before accessing 'instance_type'.
+        if rc.change.after is not null {
+          instance_type = rc.change.after.instance_type
+
+          // Check if the instance_type is not the allowed type.
+          if instance_type is not allowed_instance_type {
+            // If it's not the allowed type, add the resource address and its instance type
+            // to the list of violating instances.
+            append(violating_instances, {
+              "address": address,
+              "instance_type": instance_type,
+            })
+          }
+        }
       }
     }
   }
