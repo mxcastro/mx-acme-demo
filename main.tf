@@ -18,8 +18,8 @@ module "acme-compute" {
   instance_type = "t2.micro"
   # instance_type     = "t2.nano" //unallowed instance type
   # instance_type     = "t3.micro" //allowed instance type
-  subnet_id         = module.networking.subnet_id
-  vpc_id            = module.networking.vpc_id
+  subnet_id         = module.acme-networking.subnet_id
+  vpc_id            = module.acme-networking.vpc_id
   name_prefix       = "${var.prefix}-${var.project}-${var.environment}"
   allowed_ports     = ["22", "443"]
   allowed_ssh_cidrs = "0.0.0.0/0"
