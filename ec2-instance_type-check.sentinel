@@ -1,0 +1,60 @@
+// This policy checks all 'aws_instance' resources in the Terraform plan
+// to ensure their 'instance_type' is set to 't2.micro'.
+// If any instance type is different, the policy will fail.
+
+// Import the 'tfplan' module to access the Terraform plan data.
+import "tfplan" as tfplan
+
+// Define the allowed instance type.
+allowed_instance_type = "t2.micro"
+
+// Initialize a list to store instances that violate the policy.
+violating_instances = []
+
+// Check if resource_changes exists and is a collection before iterating.
+// This prevents the "unsupported type for looping: undefined" error
+// if there are no resource changes in the plan.
+if tfplan.resource_changes is not null and length(tfplan.resource_changes) > 0 {
+  // Iterate over all planned resources in the Terraform plan.
+  // The 'tfplan.resource_changes' collection contains all resource changes
+  // (create, update, delete).
+  for tfplan.resource_changes as rc, address {
+    // Check if the resource is an 'aws_instance' and if it's being created or updated.
+    if rc.type is "aws_instance" and (rc.change.actions contains "create" or rc.change.actions contains "update") {
+      // Get the 'instance_type' from the 'after' block of the change.
+      // The 'after' block represents the state of the resource after the plan is applied.
+      instance_type = rc.change.after.instance_type
+
+      // Check if the instance_type is not the allowed type.
+      if instance_type is not allowed_instance_type {
+        // If it's not the allowed type, add the resource address and its instance type
+        // to the list of violating instances.
+        append(violating_instances, {
+          "address": address,
+          "instance_type": instance_type,
+        })
+      }
+    }
+  }
+} else {
+  print("No resource changes found in the Terraform plan. Policy will pass as there's nothing to check.")
+}
+
+// Define the policy result.
+// The policy passes if there are no violating instances.
+// The policy fails if there are one or more violating instances.
+policy_passed = length(violating_instances) is 0
+
+// Print a message based on the policy result.
+if policy_passed {
+  print("Policy passed: All 'aws_instance' resources use the allowed instance type ('", allowed_instance_type, "').")
+} else {
+  print("Policy failed: The following 'aws_instance' resources do NOT use the allowed instance type ('", allowed_instance_type, "'):")
+  for violating_instances as instance {
+    print("  - Resource Address:", instance.address, ", Instance Type:", instance.instance_type)
+  }
+}
+
+// Set the policy's outcome.
+// 'main' is the entry point for the policy.
+main = policy_passed
