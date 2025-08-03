@@ -1,28 +1,58 @@
-# ACME-demo
+# Demo: ACME Cloud 2.0
+
+This repository contains Terraform configurations for deploying AWS infrastructure, including networking and compute resources. It also includes a Sentinel policy to ensure compliance with allowed EC2 instance types.
+
+---
+## Table of Contents
+
+* [Project Overview](#project-overview)
+* [Directory Structure](#directory-structure)
+* [Prerequisites](#prerequisites)
+* [Configuration](#configuration)
+* [Usage](#usage)
+* [Sentinel Policy](#sentinel-policy)
+* [HCP Terraform Integration](#hcp-terraform-integration)
+* [Module Details](#module-details)
+* [Outputs](#outputs)
+* [Contributing](#contributing)
+* [License](#license)
+
+---
+## Project Overview
 
 This project demonstrates how to use **HCP Terraform** to provision a simple **AWS EC2 instance** using:
 
-- ✅ Reusable Terraform modules (networking and compute)
-- ✅ GitOps-style workflow with VCS integration
-- ✅ Sentinel policy to block public SSH access on port 22
-- ✅ Workspace environment variables for AWS credentials
-- ✅ Standardization through modules
+- ✅ Reusable Terraform modules (networking and compute) for standardization
+- ✅ Workspace organization with environment variables for AWS credentials and other terraform variables
+  ✅ GitOps-style workflow with VCS integration
+- ✅ Sentinel policy that validates EC2 instance types against a predefined list of allowed types during Terraform plan/apply
+  
+This project aims to provision a basic AWS environment with the following components:
+
+* **Networking:** A Virtual Private Cloud (VPC) and a subnet.
+* **Compute:** An EC2 instance deployed within the created network.
 
 ---
+## 📁 Directory Structure
+```
+acme-demo/
+├── README.md
+├── backend.tf
+├── main.tf
+├── outputs.tf
+├── variables.tf
+└── modules/
+├── compute/
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
+└── networking/
+│   ├── main.tf
+│   ├── outputs.tf
+│   └── variables.tf
 
-## 📁 Project Structure
-
-hcp-terraform-demo/
-├── main.tf # Root Terraform configuration
-├── outputs.tf # Outputs
-├── modules/
-│ ├── networking/ # Reusable VPC + Subnet module
-│ └── compute/ # Reusable EC2 + SG module
-└── sentinel/
-└── restrict_ssh.sentinel # Policy to block port 22 open to 0.0.0.0/0
-
+```
 ---
-
 ## ⚙️ Pre-Requisites
 
 - AWS account with IAM access
@@ -31,7 +61,6 @@ hcp-terraform-demo/
 - Terraform CLI (optional for local testing)
 
 ---
-
 ## 🔐 HCP Terraform Setup
 
 1. **Create a new Workspace** in HCP Terraform using VCS integration
@@ -41,55 +70,135 @@ hcp-terraform-demo/
 3. Commit and push your code — this will trigger a `terraform plan`
 
 ---
+## Configuration
 
-## 🧠 Sentinel Policy
+### banckend.tf
 
-The included policy (`sentinel/restrict_ssh.sentinel`) **blocks any Security Group rule** that opens **port 22 (SSH)** to the public internet:
+This project is configured for HCP Terraform integration via the `backend.tf` file:
 
-```python
-rule.from_port == 22 and
-rule.to_port == 22 and
-rule.cidr_blocks contains "0.0.0.0/0"
+```
+terraform {
+  cloud {
+    organization = "mx-acme-demo"
+    workspaces {
+      name = "mx-acme-demo-dev"
+    }
+  }
+}
+```
+This configuration directs Terraform to use HCP Terraform for state management and remote operations. The Sentinel policy will automatically be evaluated as part of your HCP Terraform workflow.
 
-This ensures no insecure public access is accidentally provisioned.
+### main.tf
 
-To pass the policy, restrict SSH to a private IP range like:
-allowed_ssh_cidrs = ["10.0.0.0/16"]
+The project uses variables to allow for flexible deployments across different environments.
 
-🧱 Standardized Module Usage
-This project uses modules to enforce consistent provisioning:
+* **`main.tf`**: The main Terraform configuration file.
 
-Networking Module
+  * `provider "aws"`: Configures the AWS provider, currently set to `us-east-1` region.
 
-VPC and Public Subnet with map_public_ip_on_launch
+  * `module "networking"`: Deploys the VPC and subnet.
 
-Compute Module
+  * `module "compute"`: Deploys the EC2 instance. Pay attention to the `instance_type` variable here, as it's subject to the Sentinel policy.
 
-Security Group and EC2 instance with parameterized inputs
+### variables.tf
 
-Modules can be reused across environments or teams by simply changing input variables.
+* **`variables.tf`**: Defines the input variables for the project. The default values of these variables can be override by HCP Terraform Organization or Workspace variables.
 
-✅ Example Run
-terraform init
-terraform plan
-terraform apply
+  * `project`: The name of the project (e.g., `acme-demo`).
+  * `environment`: The deployment environment (e.g., `dev`, `staging`, `prod`).
+  * `prefix`: A prefix for resource naming to ensure uniqueness.
 
-Or commit a change and let HCP Terraform handle the plan + apply through the UI and/or CLI.
+### outputs.tf
 
-📌 Notes
-The AMI ID used is for Amazon Linux 2 in us-east-1. Adjust it for other regions.
+* **`outputs.tf`**: Defines the output values that will be displayed after a successful `terraform apply`:
 
-Sentinel policy must be assigned to the workspace or a policy set in HCP.
-
-Use tags or naming conventions inside modules to align with enterprise standards.
-
-🧩 Possible Extensions
-Add a staging and prod workspace to show environment separation
-
-Include Run Tasks (e.g., checkov or tfsec)
-
-Use Terraform Cloud registry modules instead of local ones
+  * `instance_id`: The ID of the provisioned EC2 instance.
 
 ---
+## 🧠 Sentinel Policy
 
-Let me know if you want the same README with your branding or presentation tips added for live demos.
+The `ec2-instance_type-check` is configured directly in HCP Terraform and is designed to enforce allowed EC2 instance types.
+
+* **`allowed_types`**: This variable within the policy defines the list of EC2 instance types that are permitted (currently `["t3.micro", "t2.micro"]`).
+
+* The policy checks all `aws_instance` resources that are being created or updated in the Terraform plan.
+
+* If any instance's `instance_type` is not in the `allowed_types` list, the policy will fail, preventing the deployment.
+
+---
+## 🧱 Standardized Module Usage
+
+This project uses modules to enforce consistent provisioning. Modules can be reused across environments or teams by simply changing input variables.
+
+### Networking Module (`modules/networking`)
+
+This module is responsible for provisioning the core networking components in AWS.
+
+#### Resources (`modules/networking/main.tf`)
+
+* `aws_vpc.main`: Creates a new VPC with the specified `vpc_cidr` and tags.
+
+* `aws_subnet.public`: Creates a public subnet within the `aws_vpc.main` with the specified `subnet_cidr`, `availability_zone`, and enables public IP assignment on launch.
+  
+* #### Input Variables (`modules/networking/variables.tf`)
+
+* `vpc_cidr` (string): The CIDR block for the Virtual Private Cloud (VPC).
+
+* `subnet_cidr` (string): The CIDR block for the public subnet within the VPC.
+
+* `availability_zone` (string): The AWS Availability Zone where the subnet will be created.
+
+* `name_prefix` (string): A prefix used for naming the created VPC and subnet resources.
+
+#### Outputs (`modules/networking/outputs.tf`)
+
+* `vpc_id`: The ID of the created VPC.
+
+* `subnet_id`: The ID of the created public subnet.
+
+### Compute Module (`modules/compute`)
+
+This module is responsible for provisioning an EC2 instance and its associated security group.
+
+#### Resources (`modules/compute/main.tf`)
+
+* `aws_instance.web`: Creates an EC2 instance with the specified AMI, instance type, and subnet. It also associates the instance with the security group created by this module.
+
+* `aws_security_group.instance`: Creates a security group to control inbound and outbound traffic for the EC2 instance.
+
+* `aws_vpc_security_group_ingress_rule.instance`: Creates ingress rules for the security group, allowing traffic on the `allowed_ports` from `allowed_ssh_cidrs`.
+
+* `aws_vpc_security_group_egress_rule.instance`: Creates an egress rule for the security group, allowing all outbound traffic.
+
+#### Input Variables (`modules/compute/variables.tf`)
+
+* `ami_id` (string): The AMI ID for the EC2 instance.
+
+* `instance_type` (string): The instance type for the EC2 instance. This is subject to the Sentinel policy.
+
+* `subnet_id` (string): The ID of the subnet where the EC2 instance will be launched.
+
+* `vpc_id` (string): The ID of the VPC where the security group will be created.
+
+* `name_prefix` (string): A prefix used for naming the created EC2 instance and security group.
+
+* `allowed_ports` (list(string), optional): A list of inbound TCP ports to allow on the security group (defaults to `["80", "443"]`).
+
+* `allowed_ssh_cidrs` (string, optional): The CIDR block from which SSH access is allowed (defaults to `"0.0.0.0/0"`).
+
+#### Outputs (`modules/compute/outputs.tf`)
+
+* `instance_id`: The ID of the created EC2 instance.
+
+---
+## Usage
+
+This project is configured to work with [HCP Terraform](https://cloud.hashicorp.com/). Once your repository is connected to an HCP Terraform workspace, the deployment process is automated:
+
+1. **Push Code Changes:** Simply commit and push changes to your connected Git repository.
+
+2. **Automatic Plan:** HCP Terraform will automatically detect the code changes and initiate a Terraform plan. This plan will show you what resources Terraform intends to create, modify, or destroy. The Sentinel policy will be evaluated during this phase.
+
+3. **Apply Confirmation (if required):** Depending on your workspace's settings (e.g., "Auto Apply" or "Manual Apply"), you may need to manually confirm the apply operation within the HCP Terraform UI. If "Auto Apply" is enabled, the changes will be applied automatically after a successful plan and policy evaluation.
+
+Monitor the progress and review the details of each run directly in your HCP Terraform workspace.
