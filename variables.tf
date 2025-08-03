@@ -1,6 +1,6 @@
 # Project name to be used in bucket naming and tags
 variable "project" {
-  description = "The name of the project. Used for bucket naming and tagging."
+  description = "The name of the project. Used for naming and tagging."
   type        = string
   default     = "acme-demo" # Example default
 }
@@ -12,9 +12,9 @@ variable "environment" {
   default     = "dev" # Example default
 }
 
-# Required prefix for the bucket name to ensure uniqueness
+# Required prefix for the instance name
 variable "prefix" {
-  description = "A required suffix to append to the bucket name for uniqueness."
+  description = "A required prefix to append to the instance name."
   type        = string
-  default     = "data" # Example default
+  default     = "web" # Example default
 }
