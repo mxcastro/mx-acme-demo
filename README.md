@@ -5,17 +5,27 @@ This repository contains Terraform configurations for deploying AWS infrastructu
 ---
 ## Table of Contents
 
-* [Project Overview](#project-overview)
-* [Directory Structure](#directory-structure)
-* [Prerequisites](#prerequisites)
-* [Configuration](#configuration)
-* [Usage](#usage)
-* [Sentinel Policy](#sentinel-policy)
-* [HCP Terraform Integration](#hcp-terraform-integration)
-* [Module Details](#module-details)
-* [Outputs](#outputs)
-* [Contributing](#contributing)
-* [License](#license)
+- [Demo: ACME Cloud 2.0](#demo-acme-cloud-20)
+  - [Table of Contents](#table-of-contents)
+  - [Project Overview](#project-overview)
+  - [📁 Directory Structure](#-directory-structure)
+  - [⚙️ Pre-Requisites](#️-pre-requisites)
+  - [🔐 HCP Terraform Setup](#-hcp-terraform-setup)
+  - [Configuration](#configuration)
+    - [banckend.tf](#banckendtf)
+    - [main.tf](#maintf)
+    - [variables.tf](#variablestf)
+    - [outputs.tf](#outputstf)
+  - [🧠 Sentinel Policy](#-sentinel-policy)
+  - [🧱 Standardized Module Usage](#-standardized-module-usage)
+    - [Networking Module (`/acme-networking`)](#networking-module-acme-networking)
+      - [Usage](#usage)
+      - [Outputs](#outputs)
+    - [Compute Module (`/acme-compute`)](#compute-module-acme-compute)
+      - [Usage](#usage-1)
+      - [Input Variables](#input-variables)
+      - [Outputs](#outputs-1)
+  - [Usage](#usage-2)
 
 ---
 ## Project Overview
@@ -40,16 +50,7 @@ acme-demo/
 ├── backend.tf
 ├── main.tf
 ├── outputs.tf
-├── variables.tf
-└── modules/
-├── compute/
-│   ├── main.tf
-│   ├── outputs.tf
-│   └── variables.tf
-└── networking/
-│   ├── main.tf
-│   ├── outputs.tf
-│   └── variables.tf
+└── variables.tf
 
 ```
 ---
@@ -96,9 +97,9 @@ The project uses variables to allow for flexible deployments across different en
 
   * `provider "aws"`: Configures the AWS provider, currently set to `us-east-1` region.
 
-  * `module "networking"`: Deploys the VPC and subnet.
+  * `module "acme-networking"`: Deploys the VPC and subnet.
 
-  * `module "compute"`: Deploys the EC2 instance. Pay attention to the `instance_type` variable here, as it's subject to the Sentinel policy.
+  * `module "acme-compute"`: Deploys the EC2 instance. Pay attention to the `instance_type` variable here, as it's subject to the Sentinel policy.
 
 ### variables.tf
 
@@ -128,19 +129,23 @@ The `ec2-instance_type-check` is configured directly in HCP Terraform and is des
 ---
 ## 🧱 Standardized Module Usage
 
-This project uses modules to enforce consistent provisioning. Modules can be reused across environments or teams by simply changing input variables.
+This project uses private modules to enforce consistent provisioning. Modules can be reused across environments or teams by simply changing input variables. These are hosted on an organization's private registry and are only available to members of this organization.
 
-### Networking Module (`modules/networking`)
+### Networking Module (`/acme-networking`)
 
 This module is responsible for provisioning the core networking components in AWS.
 
-#### Resources (`modules/networking/main.tf`)
+#### Usage
 
-* `aws_vpc.main`: Creates a new VPC with the specified `vpc_cidr` and tags.
+```
+module "acme-networking" {
+  source  = "app.terraform.io/mx-acme-demo/acme-networking/aws"
+  version = "1.0.0"
+  # insert INPUT variables here
+}
+```
 
-* `aws_subnet.public`: Creates a public subnet within the `aws_vpc.main` with the specified `subnet_cidr`, `availability_zone`, and enables public IP assignment on launch.
-  
-* #### Input Variables (`modules/networking/variables.tf`)
+* #### Input Variables
 
 * `vpc_cidr` (string): The CIDR block for the Virtual Private Cloud (VPC).
 
@@ -148,29 +153,29 @@ This module is responsible for provisioning the core networking components in AW
 
 * `availability_zone` (string): The AWS Availability Zone where the subnet will be created.
 
-* `name_prefix` (string): A prefix used for naming the created VPC and subnet resources.
+* `name_prefix` (string): A prefix used for naming the created VPC and subnet resources. Suggestion: "${var.prefix}-${var.project}-${var.environment}".
 
-#### Outputs (`modules/networking/outputs.tf`)
+#### Outputs
 
 * `vpc_id`: The ID of the created VPC.
 
 * `subnet_id`: The ID of the created public subnet.
 
-### Compute Module (`modules/compute`)
+### Compute Module (`/acme-compute`)
 
 This module is responsible for provisioning an EC2 instance and its associated security group.
 
-#### Resources (`modules/compute/main.tf`)
+#### Usage
 
-* `aws_instance.web`: Creates an EC2 instance with the specified AMI, instance type, and subnet. It also associates the instance with the security group created by this module.
+```
+module "acme-compute" {
+  source  = "app.terraform.io/mx-acme-demo/acme-compute/aws"
+  version = "1.0.0"
+  # insert INPUT variables here
+}
+```
 
-* `aws_security_group.instance`: Creates a security group to control inbound and outbound traffic for the EC2 instance.
-
-* `aws_vpc_security_group_ingress_rule.instance`: Creates ingress rules for the security group, allowing traffic on the `allowed_ports` from `allowed_ssh_cidrs`.
-
-* `aws_vpc_security_group_egress_rule.instance`: Creates an egress rule for the security group, allowing all outbound traffic.
-
-#### Input Variables (`modules/compute/variables.tf`)
+#### Input Variables
 
 * `ami_id` (string): The AMI ID for the EC2 instance.
 
@@ -180,13 +185,13 @@ This module is responsible for provisioning an EC2 instance and its associated s
 
 * `vpc_id` (string): The ID of the VPC where the security group will be created.
 
-* `name_prefix` (string): A prefix used for naming the created EC2 instance and security group.
+* `name_prefix` (string): A prefix used for naming the created EC2 instance and security group. Suggestion: "${var.prefix}-${var.project}-${var.environment}".
 
 * `allowed_ports` (list(string), optional): A list of inbound TCP ports to allow on the security group (defaults to `["80", "443"]`).
 
 * `allowed_ssh_cidrs` (string, optional): The CIDR block from which SSH access is allowed (defaults to `"0.0.0.0/0"`).
 
-#### Outputs (`modules/compute/outputs.tf`)
+#### Outputs
 
 * `instance_id`: The ID of the created EC2 instance.
 
