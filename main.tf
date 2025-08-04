@@ -2,10 +2,6 @@ provider "aws" {
   region = "us-east-1"
 }
 
-provider "aws" {
-  region = "us-east-1"
-}
-
 module "networking" {
   source            = "./modules/networking"
   vpc_cidr          = "10.0.0.0/16"
