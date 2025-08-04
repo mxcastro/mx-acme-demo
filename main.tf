@@ -1,6 +1,6 @@
-provider "aws" {
-  region = "us-east-1"
-}
+# provider "aws" {
+#   region = "us-east-1"
+# }
 
 module "acme-networking" {
   source            = "app.terraform.io/mx-acme-demo/acme-networking/aws"
