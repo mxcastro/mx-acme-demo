@@ -80,9 +80,9 @@ This project is configured for HCP Terraform integration via the `backend.tf` fi
 ```
 terraform {
   cloud {
-    organization = "mx-acme-demo"
+    organization = "acme-demo-mx"
     workspaces {
-      name = "mx-acme-demo-dev"
+      name = "acme-demo-mx-dev"
     }
   }
 }
@@ -139,7 +139,7 @@ This module is responsible for provisioning the core networking components in AW
 
 ```
 module "acme-networking" {
-  source  = "app.terraform.io/mx-acme-demo/acme-networking/aws"
+  source  = "app.terraform.io/acme-demo-mx/acme-networking/aws"
   version = "1.0.0"
   # insert INPUT variables here
 }
@@ -169,7 +169,7 @@ This module is responsible for provisioning an EC2 instance and its associated s
 
 ```
 module "acme-compute" {
-  source  = "app.terraform.io/mx-acme-demo/acme-compute/aws"
+  source  = "app.terraform.io/acme-demo-mx/acme-compute/aws"
   version = "1.0.0"
   # insert INPUT variables here
 }
