@@ -1,8 +1,8 @@
 terraform {
   cloud {
-    organization = "mx-acme-demo"
+    organization = "acme-demo-mx"
     workspaces {
-      name = "mx-acme-demo-dev"
+      name = "acme-demo-mx-dev"
     }
   }
 }
